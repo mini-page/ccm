@@ -363,11 +363,41 @@
     </footer>
 
 
-    <script>
+   <script>
         document.getElementById("downloadBtn").addEventListener("click", function () {
-            html2canvas(document.getElementById("card")).then(canvas => {
+            html2canvas(document.getElementById("card"), {
+                useCORS: true, // Use this if you are loading images from another domain
+                backgroundColor: null // Set to null to preserve transparent background
+            }).then(canvas => {
+                const context = canvas.getContext('2d');
+                const radius = 20; // Set your desired border radius here
+
+                // Create a new canvas with rounded corners
+                const roundedCanvas = document.createElement('canvas');
+                const roundedContext = roundedCanvas.getContext('2d');
+                roundedCanvas.width = canvas.width;
+                roundedCanvas.height = canvas.height;
+
+                // Draw a rounded rectangle
+                roundedContext.beginPath();
+                roundedContext.moveTo(radius, 0);
+                roundedContext.lineTo(canvas.width - radius, 0);
+                roundedContext.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
+                roundedContext.lineTo(canvas.width, canvas.height - radius);
+                roundedContext.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
+                roundedContext.lineTo(radius, canvas.height);
+                roundedContext.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
+                roundedContext.lineTo(0, radius);
+                roundedContext.quadraticCurveTo(0, 0, radius, 0);
+                roundedContext.closePath();
+                roundedContext.clip();
+
+                // Draw the original canvas onto the new canvas
+                roundedContext.drawImage(canvas, 0, 0);
+
+                // Create a download link
                 const link = document.createElement("a");
-                link.href = canvas.toDataURL("image/png");
+                link.href = roundedCanvas.toDataURL("image/png");
                 link.download = "custom_card.png";
                 link.click();
             });
@@ -385,6 +415,7 @@
             reader.readAsDataURL(file);
         });
     </script>
+</body>
 </body>
 
 </html>
